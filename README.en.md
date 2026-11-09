@@ -1,0 +1,222 @@
+> **Справочник 2.0:** 100 русских правил в 15 разделах. Источник — `registry/standards/<domain>/<name>/rules/*.md`; `standard.md` и примеры генерируются. [Как предложить изменение](docs/contributing-standards.md) · [Аудит прежних правил](docs/audit-2026-11-09.md).
+
+# vibecoding-base 🧱✨
+
+`vibecoding-base` is a composable registry for AI-native project foundations.
+
+It helps you generate a clean project for one active stack, instead of copying a huge folder that already contains every possible future technology. The registry keeps standards, stack profiles, templates and checks in one place. Your project gets only what it actually uses.
+
+## Why This Exists
+
+Coding agents are fast. Without repo rules, they also improvise fast:
+
+- random folders;
+- duplicated architecture docs;
+- different rules for nearly identical stacks;
+- hidden framework drift;
+- stale standards nobody wants to update;
+- "ready" claims that only mean "docs exist".
+
+This repo fixes that with one simple idea:
+
+> Registry contains everything. A generated project contains only active context.
+
+## What You Generate
+
+When you run:
+
+```bash
+node tools/vibe.mjs use go-next-postgres --project ../my-app
+```
+
+the target project gets:
+
+```text
+apps/api
+apps/web
+contracts/openapi
+db/migrations
+standards/active
+scripts/check.sh
+README.md
+AGENTS.md
+.vibe/profile.yaml
+.vibe/enabled.yaml
+.vibe/registry.lock
+```
+
+It does not get inactive folders such as:
+
+```text
+mobile
+desktop
+worker
+admin
+payments
+queue
+ai
+```
+
+Those parts stay in the registry until you explicitly enable them.
+
+## No Duplicate Sources 🧭
+
+There is one source of truth for standards:
+
+```text
+registry/standards
+```
+
+Generated projects and examples receive copies in:
+
+```text
+standards/active
+```
+
+That copy is runtime context for humans and agents. It is not where standards are maintained.
+
+If you want to change a standard:
+
+1. edit `registry/standards/<id>/rules/*.md`;
+2. update `standard.yaml` and `CHANGELOG.md`;
+3. regenerate examples;
+4. run `node tools/vibe.mjs verify`.
+
+`verify` fails if generated active standards drift from the registry.
+
+## Daily Commands
+
+```bash
+# Generate a stack
+node tools/vibe.mjs use go-next-postgres --project ../my-app
+
+# Verify registry and examples
+node tools/vibe.mjs verify
+
+# List standards
+node tools/vibe.mjs standards list
+
+# Explain one standard
+node tools/vibe.mjs standards explain backend/go
+
+# Enable optional parts
+node tools/vibe.mjs enable worker --project ../my-app
+node tools/vibe.mjs enable mobile react-native --project ../my-app
+node tools/vibe.mjs enable payments stripe --project ../my-app
+
+# Disable an optional part
+node tools/vibe.mjs disable mobile --project ../my-app
+```
+
+## Repository Layout
+
+```text
+registry/
+  standards/      versioned standards
+  stacks/         YAML stack profiles
+  templates/      composable generated project parts
+  checks/         registry and generated-project checks
+  schemas/        schemas for standards, stacks and profiles
+tools/
+  vibe.mjs        minimal CLI
+examples/
+  generated-go-next-postgres
+  generated-python-react-postgres
+docs/
+  architecture.md
+  contributing-standards.md
+  stack-profiles.md
+  standards-versioning.md
+```
+
+## Stack Profiles
+
+Current stacks:
+
+- `go-next-postgres`: Go API, Next.js web, PostgreSQL, OpenAPI.
+- `python-react-postgres`: Python/FastAPI API, React web, PostgreSQL, OpenAPI.
+
+Each stack profile is YAML composition:
+
+```yaml
+components:
+  backend: go
+  frontend: next
+  database: postgres
+  contracts: openapi
+standards:
+  - backend/go@^1.0.0
+templates:
+  - backend/go
+checks:
+  - check_structure
+```
+
+## Standards
+
+Each standard is independently versioned:
+
+```text
+registry/standards/backend/go/
+  standard.yaml
+  standard.md
+  checks.yaml
+  CHANGELOG.md
+  README.md
+```
+
+`standard.yaml` declares owners, SemVer version, dependencies, enforcement reality and compatible stacks.
+
+Enforcement is explicit:
+
+```yaml
+enforcement:
+  documented: true
+  linted: false
+  tested: false
+  ci_blocking: false
+```
+
+If a rule is only written down, we say so. No fake "enforced" claims.
+
+## Version policy
+
+Current standards target:
+
+- Go 1.26
+- Python 3.14
+- PostgreSQL 18
+- OpenAPI 3.2
+- Next.js 16
+- React 19.2
+- Vite 8
+- TypeScript 6
+- Node 24 LTS
+- React Native 0.85
+
+Templates are lightweight. Some runtime folders are placeholders and their stack readiness says `runtime: partial`. That is intentional and honest.
+
+## Lockfile Policy
+
+`.vibe/registry.lock` pins standard and template versions.
+
+Package-manager lockfiles are created by the real generated project after dependencies are installed. The templates document package managers and tested baseline ranges, but they do not commit fake lockfiles.
+
+## Status Matrix
+
+Stacks use separate readiness fields:
+
+- `template`: files can be generated.
+- `runtime`: runnable app/runtime completeness.
+- `checks`: automated checks completeness.
+- `docs`: documentation completeness.
+
+This avoids calling a stack "ready" when only the docs are ready.
+
+## Contributing
+
+Read:
+
+- [`docs/contributing-standards.md`](docs/contributing-standards.md)
+- [`docs/standards-versioning.md`](docs/standards-versioning.md)
+- [`docs/stack-profiles.md`](docs/stack-profiles.md)

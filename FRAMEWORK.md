@@ -1,0 +1,57 @@
+> **Справочник 2.0:** 100 русских правил в 15 разделах. Источник — `registry/standards/<domain>/<name>/rules/*.md`; `standard.md` и примеры генерируются. [Как предложить изменение](docs/contributing-standards.md) · [Аудит прежних правил](docs/audit-2026-11-09.md).
+
+# vibecoding-base Framework Model
+
+`vibecoding-base` is a registry-first framework library.
+
+The framework is not a copied folder. The framework is the composition system:
+
+```text
+standards + templates + stack profile + lockfile + generated active context
+```
+
+## Principles
+
+1. Registry contains all reusable knowledge.
+2. Generated projects contain only active stack context.
+3. Standards are independently versioned.
+4. Stack profiles compose standards and templates.
+5. Lockfiles pin exact generated versions.
+6. Enforcement must be honest.
+7. Disabled features must not create folders.
+8. Generated examples are derived artifacts, not source folders.
+9. Runtime readiness is explicit; placeholders must say they are placeholders.
+10. Explicit version requirements are kept in standards, not scattered across stack copies.
+
+## Delivery Loop
+
+```text
+Scope
+  -> Contract
+  -> Test
+  -> Slice
+  -> Observe
+  -> Document
+  -> Gate
+  -> Review
+```
+
+## No-Clutter Rule
+
+Generated projects must not contain unused technology folders. Add optional parts only through:
+
+```bash
+node tools/vibe.mjs enable <feature> [variant] --project <dir>
+```
+
+## Review Checklist
+
+1. Does the change update the registry source of truth?
+2. Does it avoid duplicated standards?
+3. Does `standard.yaml` match the standard content?
+4. Does enforcement point to real checks?
+5. Does the stack status matrix avoid overclaiming readiness?
+6. Do generated examples still pass `node tools/vibe.mjs verify`?
+7. Did any generated active standard drift from `registry/standards`?
+8. Do stack checks actually run against examples?
+9. Are package/runtime lockfile expectations honest?
